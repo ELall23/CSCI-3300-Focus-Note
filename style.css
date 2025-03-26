@@ -1,0 +1,63 @@
+body{
+    --bg: #231F29;
+    --doc: #33313C;
+    --text: #D2CCD4;
+    --highlight: #538083;
+    --accent: #247BA0;
+
+    background: var(--bg);
+    color: var(--text);
+}
+
+#root{
+    position:fixed;
+    margin:auto;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+}
+
+    /* nav menu*/
+/* put style code for the nav bar at the top of the app here */
+
+
+    /* File Manager */
+/* maybe a side bar on the left side that can have expandable folder menus for each folder you make */
+/* put style code for the file manager section here */
+
+
+    /* the text editor*/
+/* The main text editing section for the current focused document */
+
+.docu{
+    position: absolute;
+    margin: auto ;
+    overflow:auto;
+    background: var(--doc);
+    top:0;
+    bottom:0;
+    left:0;
+    right:0; /* filler placement until layout is designed*/
+}
+
+/* A title section at the top of the document */
+.docuTitle{
+    position:relative; /*maybe make it fixed to the top?*/
+    margin:auto;
+    overflow:hidden;
+    top:0;
+    left:0;
+    right:0;
+    height:fit-content; /* set a fixed height later to match whatever font-size we pick*/
+}
+
+/* the content area of the document */
+.docuTextArea{
+ position:relative;
+ margin:auto;
+ overflow:auto;
+ left:0;
+ right:0;
+ height: fit-content; /* fit the height to fill the rest of the document block */
+}
