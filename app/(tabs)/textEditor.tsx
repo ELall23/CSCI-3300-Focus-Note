@@ -25,6 +25,7 @@ export default function TextEditorScreen() {
     <ThemedView style={styles.container}>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Text Editor</ThemedText>
+        <ThemedText type="link" style={styles.saveButton} onPress={() => alert('Saving document...')}>Save Document</ThemedText>
       </ThemedView>
       
       <ThemedView style={styles.editorContainer}>
@@ -43,27 +44,6 @@ export default function TextEditorScreen() {
           ]}
         />
       </ThemedView>
-
-      <Collapsible title="Document Info">
-        <ThemedText>
-          This document is currently open for editing. The text area above allows you to modify the content. 
-          Changes will be automatically reflected.
-        </ThemedText>
-      </Collapsible>
-
-      <Collapsible title="Save Options">
-        <ThemedText>
-          After editing, you can save your changes by clicking the save button below. For now, the save 
-          functionality is just a placeholder.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev">Learn more about saving documents</ExternalLink>
-      </Collapsible>
-
-      <ThemedView style={styles.saveButtonContainer}>
-        <ThemedText type="link" style={styles.saveButton} onPress={() => alert('Saving document...')}>
-          Save Document
-        </ThemedText>
-      </ThemedView>
     </ThemedView>
   );
 }
@@ -75,29 +55,34 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
-  },
-  subtitle: {
-    fontSize: 18,
-    marginBottom: 12,
-  },
-  editorContainer: {
-    marginBottom: 16,
-  },
-  textInput: {
-    height: 200,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 16,
-  },
-  saveButtonContainer: {
-    marginTop: 16,
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 24,
   },
   saveButton: {
     fontSize: 18,
     color: '#007bff',
+  },
+  subtitleInput: {
+    height: 40,
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 18,
+    marginBottom: 16,
+  },
+  editorContainer: {
+    flex: 1, // This makes the editor section take up the remaining space
+    marginBottom: 16,
+  },
+  textInput: {
+    flex: 1, // This ensures the text input fills the available space in the editor
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 16,
   },
 });
