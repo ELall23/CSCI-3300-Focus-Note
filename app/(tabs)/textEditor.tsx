@@ -108,7 +108,7 @@ export default function TextEditorScreen() {
                           styles.documentItem,
                           document.id === currentDocument?.id && styles.activeDocument, // Highlight active document
                         ]}>
-                        <ThemedText style={[styles.documentItemText, { color: '#242529'}]}>{document.name}</ThemedText>
+                        <ThemedText style={[styles.documentItem, { color: '#242529'}]}>{document.name}</ThemedText>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -206,8 +206,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   documentItem: {
-    padding: 5,
-    marginBottom: 5,
+    padding: 2,
+    marginBottom: 1,
     color: '#242529',
   },
   activeDocument: {
