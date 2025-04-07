@@ -1,15 +1,14 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, View, ScrollView, TouchableOpacity } from 'react-native'; 
+import { StyleSheet, TextInput, View, ScrollView, TouchableOpacity, Alert } from 'react-native'; 
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
 
 export default function TextEditorScreen() {
-
   const colorScheme = useColorScheme();
   const [text, setText] = useState('');
-  const [subtitle, setSubtitle] = useState('Edit the document below:');
   const [folders, setFolders] = useState([
     { id: generateId(), name: 'Folder 1', documents: [{ id: generateId(), name: 'Document 1', content: 'Sample content' }] },
     { id: generateId(), name: 'Folder 2', documents: [{ id: generateId(), name: 'Document 2', content: 'Another sample document' }] },
@@ -19,39 +18,78 @@ export default function TextEditorScreen() {
   const [newFolderName, setNewFolderName] = useState('');
   const [newDocumentName, setNewDocumentName] = useState('');
 
+  // On initial load, set the first document as the current document and load its content from AsyncStorage
   useEffect(() => {
-    if (folders[0]?.documents.length > 0) {
-      setCurrentDocument(folders[0].documents[0]);
-      setText(folders[0].documents[0].content);
+    // Only set the initial document when there's no document selected yet
+    if (!currentDocument && folders[0]?.documents.length > 0) {
+      const initialDocument = folders[0].documents[0];
+      setCurrentDocument(initialDocument);
+      loadDocumentContent(initialDocument.id); // Load content from AsyncStorage
     }
-  }, [folders]);
+  }, [folders, currentDocument]);
 
-  const handleTextChange = (newText: string) => {
-    setText(newText);
+  // Update text content and reflect it in the state, then save to AsyncStorage
+  const handleTextChange = async (newText: string) => {
+    setText(newText); // Update the current text
     if (currentDocument) {
-      setCurrentDocument((prevDoc: any) => ({ ...prevDoc, content: newText }));
+      try {
+        // Save the updated content to AsyncStorage
+        await AsyncStorage.setItem(currentDocument.id, newText);
+        // Update the current document content in the folders state
+        setFolders(prevFolders => prevFolders.map(folder => ({
+          ...folder,
+          documents: folder.documents.map(doc => 
+            doc.id === currentDocument.id ? { ...doc, content: newText } : doc
+          )
+        })));
+      } catch (error) {
+        console.error("Failed to save document:", error);
+      }
     }
   };
 
+  // Handle folder click (set current document based on the folder)
   const handleFolderClick = (folderId: string) => {
     const folder = folders.find((folder) => folder.id === folderId);
     if (folder && folder.documents.length > 0) {
       const selectedDocument = folder.documents[0];
       setCurrentDocument(selectedDocument);
-      setText(selectedDocument.content);
+      loadDocumentContent(selectedDocument.id); // Load content from AsyncStorage
     }
   };
 
+  // Handle document click (set current document based on the document clicked)
   const handleDocumentClick = (documentId: string) => {
     const document = folders
       .flatMap((folder) => folder.documents)
       .find((doc) => doc.id === documentId);
     if (document) {
-      setCurrentDocument(document);
-      setText(document.content);
+      if (document.id !== currentDocument?.id) {
+        setCurrentDocument(document);
+        loadDocumentContent(document.id); // Load content from AsyncStorage
+      }
     }
   };
 
+  // Function to load document content from AsyncStorage
+  const loadDocumentContent = async (documentId: string) => {
+    try {
+      const savedText = await AsyncStorage.getItem(documentId);
+      if (savedText !== null) {
+        setText(savedText); // Set the text state to the saved content
+      } else {
+        // If no saved content, initialize with the document content from the folder
+        const doc = folders
+          .flatMap(folder => folder.documents)
+          .find(doc => doc.id === documentId);
+        if (doc) setText(doc.content);
+      }
+    } catch (error) {
+      console.error("Failed to load document:", error);
+    }
+  };
+
+  // Create a new folder
   const handleNewFolder = () => {
     if (newFolderName.trim()) {
       setFolders((prevFolders) => [
@@ -62,6 +100,7 @@ export default function TextEditorScreen() {
     }
   };
 
+  // Create a new document
   const handleNewDocument = (folderId: string) => {
     if (newDocumentName.trim()) {
       const newDocument = { id: generateId(), name: newDocumentName, content: '' };
@@ -81,11 +120,12 @@ export default function TextEditorScreen() {
       <View style={styles.sidebarContainer}>
         <ThemedView style={styles.titleContainer}>
           <ThemedText type="title">Text Editor</ThemedText>
-          <ThemedText type="link" style={styles.saveButton} onPress={() => alert('Saving document...')}>Save Document</ThemedText>
         </ThemedView>
 
         <TouchableOpacity onPress={() => setSidebarCollapsed(!sidebarCollapsed)}>
-          <ThemedText style={styles.toggleSidebar}>{sidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}</ThemedText>
+          <ThemedText style={styles.toggleSidebar}>
+            {sidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
+          </ThemedText>
         </TouchableOpacity>
 
         {/* Sidebar */}
@@ -97,18 +137,15 @@ export default function TextEditorScreen() {
                   <TouchableOpacity
                     onPress={() => handleFolderClick(folder.id)}
                     style={styles.folderName}>
-                    <ThemedText style={[styles.folderName, { color: '#242529'}]}>{folder.name}</ThemedText>
+                    <ThemedText style={[styles.folderName, { color: '#242529' }]}>{folder.name}</ThemedText>
                   </TouchableOpacity>
                   <View style={styles.documentsContainer}>
                     {folder.documents.map((document) => (
                       <TouchableOpacity
                         key={document.id}
                         onPress={() => handleDocumentClick(document.id)}
-                        style={[
-                          styles.documentItem,
-                          document.id === currentDocument?.id && styles.activeDocument, // Highlight active document
-                        ]}>
-                        <ThemedText style={[styles.documentItem, { color: '#242529'}]}>{document.name}</ThemedText>
+                        style={[styles.documentItem, document.id === currentDocument?.id && styles.activeDocument]}>
+                        <ThemedText style={[styles.documentItem, { color: '#242529' }]}>{document.name}</ThemedText>
                       </TouchableOpacity>
                     ))}
                   </View>
