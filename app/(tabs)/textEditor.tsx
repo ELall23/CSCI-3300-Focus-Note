@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, TextInput, View, ScrollView, TouchableOpacity } from 'react-native'; 
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
@@ -18,6 +18,7 @@ export default function TextEditorScreen() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false); 
   const [newFolderId, setNewFolderId] = useState('');
   const [newDocumentNames, setNewDocumentNames] = useState({});
+  const saveTimeoutRef = useRef(null);
 
   useEffect(() => {
     if (user === null) {
@@ -45,6 +46,13 @@ export default function TextEditorScreen() {
 
   const handleTextChange = (newText) => {
     setText(newText);
+    // Auto-save after user stops typing for 2 seconds
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      handleSave();
+    }, 2000);
   };
 
   const handleSave = async () => {
@@ -122,97 +130,107 @@ export default function TextEditorScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.sidebarContainer}>
-        <View style={styles.topBar}>
-          <ThemedView style={styles.titleContainer}>
-            <ThemedText type="title">Text Editor</ThemedText>
-          </ThemedView>
+      <View style={[styles.headerBar, { backgroundColor: Colors[colorScheme ?? 'light'].background }]}>
+        <ThemedText type="title" style={styles.headerTitle}>Text Editor</ThemedText>
 
-          {/* ✅ Add logout button */}
-          <TouchableOpacity onPress={signout} style={styles.logoutButton}>
-            <ThemedText style={styles.logoutText}>Log Out</ThemedText>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity onPress={() => setSidebarCollapsed(!sidebarCollapsed)}>
-          <ThemedText style={styles.toggleSidebar}>
-            {sidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
-          </ThemedText>
+        <TouchableOpacity onPress={signout} style={styles.logoutButton}>
+          <ThemedText style={styles.logoutText}>Log Out</ThemedText>
         </TouchableOpacity>
-
-        {!sidebarCollapsed && (
-          <View style={styles.sidebar}>
-            <ScrollView style={styles.scrollView}>
-              {folders.map((folder) => (
-                <View key={folder.id} style={styles.folderContainer}>
-                  <TouchableOpacity onPress={() => handleFolderClick(folder.id)}>
-                    <ThemedText style={styles.folderName}>{folder.name}</ThemedText>
-                  </TouchableOpacity>
-                  <View style={styles.documentsContainer}>
-                    {folder.documents.map((doc) => (
-                      <TouchableOpacity
-                        key={doc.$id}
-                        onPress={() => handleDocumentClick(doc.$id)}
-                        style={[styles.documentItem, doc.$id === currentDocument?.$id && styles.activeDocument]}>
-                        <ThemedText style={{ color: '#242529' }}>{doc.FileTitle}</ThemedText>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                  <TextInput
-                    value={newDocumentNames[folder.id] || ''}
-                    onChangeText={(text) => handleDocumentNameChange(folder.id, text)}
-                    placeholder="New document name"
-                    style={styles.newItemInput}
-                  />
-                  <TouchableOpacity onPress={() => handleNewDocument(folder.id)}>
-                    <ThemedText style={styles.createButton}>Create Document</ThemedText>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </ScrollView>
-
-            <TextInput
-              value={newFolderId}
-              onChangeText={setNewFolderId}
-              placeholder="Enter folder ID"
-              style={styles.newItemInput}
-            />
-            <TouchableOpacity onPress={handleNewFolder}>
-              <ThemedText style={styles.createButton}>Create Folder</ThemedText>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
 
-      <ThemedView style={styles.editorContainer}>
-        <TextInput
-          value={text}
-          onChangeText={handleTextChange}
-          multiline
-          numberOfLines={10}
-          placeholder="Start typing here..."
-          style={[styles.textInput, {
-            backgroundColor: Colors[colorScheme ?? 'light'].background,
-            color: Colors[colorScheme ?? 'light'].text,
-          }]}
-        />
-        <TouchableOpacity onPress={handleSave} style={styles.saveButtonContainer}>
-          <ThemedText style={styles.saveButton}>Save</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
+      <View style={styles.mainContent}>
+        <View style={styles.sidebarContainer}>
+          <TouchableOpacity onPress={() => setSidebarCollapsed(!sidebarCollapsed)}>
+            <ThemedText style={styles.toggleSidebar}>
+              {sidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
+            </ThemedText>
+          </TouchableOpacity>
+
+          {!sidebarCollapsed && (
+            <View style={styles.sidebar}>
+              <ScrollView style={styles.scrollView}>
+                {folders.map((folder) => (
+                  <View key={folder.id} style={styles.folderContainer}>
+                    <TouchableOpacity onPress={() => handleFolderClick(folder.id)}>
+                      <ThemedText style={styles.folderName}>{folder.name}</ThemedText>
+                    </TouchableOpacity>
+                    <View style={styles.documentsContainer}>
+                      {folder.documents.map((doc) => (
+                        <TouchableOpacity
+                          key={doc.$id}
+                          onPress={() => handleDocumentClick(doc.$id)}
+                          style={[styles.documentItem, doc.$id === currentDocument?.$id && styles.activeDocument]}>
+                          <ThemedText style={{ color: '#242529' }}>{doc.FileTitle}</ThemedText>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                    <TextInput
+                      value={newDocumentNames[folder.id] || ''}
+                      onChangeText={(text) => handleDocumentNameChange(folder.id, text)}
+                      placeholder="New document name"
+                      style={styles.newItemInput}
+                    />
+                    <TouchableOpacity onPress={() => handleNewDocument(folder.id)}>
+                      <ThemedText style={styles.createButton}>Create Document</ThemedText>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+
+              <TextInput
+                value={newFolderId}
+                onChangeText={setNewFolderId}
+                placeholder="Enter folder ID"
+                style={styles.newItemInput}
+              />
+              <TouchableOpacity onPress={handleNewFolder}>
+                <ThemedText style={styles.createButton}>Create Folder</ThemedText>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        <ThemedView style={styles.editorContainer}>
+          <TextInput
+            value={text}
+            onChangeText={handleTextChange}
+            multiline
+            numberOfLines={10}
+            placeholder="Start typing here..."
+            placeholderTextColor={Colors[colorScheme ?? 'light'].textSecondary}
+            style={[styles.textInput, {
+              backgroundColor: Colors[colorScheme ?? 'light'].background,
+              color: Colors[colorScheme ?? 'light'].text,
+              borderColor: '#ccc',
+            }]}
+          />
+          <TouchableOpacity onPress={handleSave} style={styles.saveButtonContainer}>
+            <ThemedText style={styles.saveButton}>Save</ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+      </View>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, flexDirection: 'row', padding: 16 },
-  sidebarContainer: { width: 250, marginRight: 16 },
-  topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  titleContainer: { marginBottom: 0 },
-  logoutButton: { backgroundColor: '#FF7070', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8 },
+  container: { flex: 1, backgroundColor: Colors.light.background },
+  headerBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  headerTitle: { fontSize: 24 },
+  logoutButton: { backgroundColor: '#FF7070', paddingVertical: 6, paddingHorizontal: 16, borderRadius: 8 },
   logoutText: { color: 'white', fontSize: 16 },
+  mainContent: { flex: 1, flexDirection: 'row' },
+  sidebarContainer: { width: 250, borderRightWidth: 1, borderRightColor: '#ccc', padding: 10 },
   toggleSidebar: { fontSize: 16, color: '#8cba9e', marginBottom: 10 },
-  sidebar: { flex: 1, padding: 16, backgroundColor: Colors.light.background, borderRadius: 8 },
+  sidebar: { flex: 1 },
   folderContainer: { marginBottom: 16 },
   folderName: { fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#242529' },
   documentsContainer: { marginBottom: 10 },
@@ -220,7 +238,7 @@ const styles = StyleSheet.create({
   activeDocument: { backgroundColor: '#D3E4FF', borderRadius: 5 },
   newItemInput: { height: 40, borderWidth: 1, borderRadius: 8, padding: 10, fontSize: 16, marginBottom: 8 },
   createButton: { fontSize: 16, color: '#8cba9e' },
-  editorContainer: { flex: 1, marginLeft: 16 },
+  editorContainer: { flex: 1, padding: 20 },
   textInput: { flex: 1, borderWidth: 1, borderRadius: 8, padding: 10, fontSize: 16 },
   scrollView: { flex: 1 },
   saveButtonContainer: { marginTop: 10, alignItems: 'flex-end' },
