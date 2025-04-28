@@ -1,11 +1,12 @@
-// Updated TextEditorScreen with a Save button for editing existing notes
+// Updated TextEditorScreen with click-to-edit and save
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, View, ScrollView, TouchableOpacity } from 'react-native'; 
+import { StyleSheet, TextInput, View, ScrollView, TouchableOpacity, TouchableWithoutFeedback } from 'react-native'; 
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { createNote, updateNote, listUserNotes } from '@/lib/noteService';
+import Markdown from 'react-native-markdown-display'; // NEW markdown styling
 
 export default function TextEditorScreen() {
   const colorScheme = useColorScheme();
@@ -15,6 +16,7 @@ export default function TextEditorScreen() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false); 
   const [newFolderId, setNewFolderId] = useState('');
   const [newDocumentName, setNewDocumentName] = useState('');
+  const [isEditing, setIsEditing] = useState(false); // NEW markdown styling
 
   useEffect(() => {
     fetchNotes();
@@ -162,17 +164,46 @@ export default function TextEditorScreen() {
       </View>
 
       <ThemedView style={styles.editorContainer}>
-        <TextInput
-          value={text}
-          onChangeText={handleTextChange}
-          multiline
-          numberOfLines={10}
-          placeholder="Start typing here..."
-          style={[styles.textInput, {
-            backgroundColor: Colors[colorScheme ?? 'light'].background,
-            color: Colors[colorScheme ?? 'light'].text,
-          }]}
-        />
+        <View style={styles.textInputContainer}>
+          {/* NEW markdown styling */}
+          {isEditing ? (
+            <TextInput
+              value={text}
+              onChangeText={handleTextChange}
+              onFocus={() => setIsEditing(true)}
+              onBlur={() => setIsEditing(false)}
+              multiline
+              numberOfLines={10}
+              placeholder="Start typing here..."
+              style={[styles.textInput, {
+                backgroundColor: Colors[colorScheme ?? 'light'].background,
+                color: Colors[colorScheme ?? 'light'].text,
+              }]}
+            />
+          ) : (
+            <TouchableWithoutFeedback onPress={() => setIsEditing(true)}>
+              <View style={styles.markdownPreviewContainer}>
+                <Markdown
+                  style={{
+                    body: {
+                      fontSize: 16,
+                      color: Colors[colorScheme ?? 'light'].text,
+                      backgroundColor: Colors[colorScheme ?? 'light'].background,
+                      padding: 10,
+                    },
+                    strong: { fontWeight: 'bold' },
+                    em: { fontStyle: 'italic' },
+                    heading1: { fontSize: 24, fontWeight: 'bold' },
+                    heading2: { fontSize: 20, fontWeight: 'bold' },
+                  }}
+                >
+                  {text || "Start typing here..."}
+                </Markdown>
+              </View>
+            </TouchableWithoutFeedback>
+          )}
+          {/* END NEW markdown styling */}
+        </View>
         <TouchableOpacity onPress={handleSave} style={styles.saveButtonContainer}>
           <ThemedText style={styles.saveButton}>Save</ThemedText>
         </TouchableOpacity>
@@ -195,8 +226,10 @@ const styles = StyleSheet.create({
   newItemInput: { height: 40, borderWidth: 1, borderRadius: 8, padding: 10, fontSize: 16, marginBottom: 8 },
   createButton: { fontSize: 16, color: '#8cba9e' },
   editorContainer: { flex: 1, marginLeft: 16 },
+  textInputContainer: { flex: 1 },
   textInput: { flex: 1, borderWidth: 1, borderRadius: 8, padding: 10, fontSize: 16 },
   scrollView: { flex: 1 },
   saveButtonContainer: { marginTop: 10, alignItems: 'flex-end' },
   saveButton: { fontSize: 16, color: '#8cba9e', padding: 8 },
+  markdownPreviewContainer: { flex: 1, borderWidth: 1, borderRadius: 8, padding: 10 }, // NEW markdown styling
 });
