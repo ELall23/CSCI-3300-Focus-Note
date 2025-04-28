@@ -11,9 +11,9 @@ Group 3
 
 ## Features
 
-* **Create Document:** Create a new document or folder for documents with just a click
-* **Delete Document:** Delete an existing document with just a click
-* **Text Editing:** Edit any document's content and style with markdown formatting
+* **Create Document:** Create a new document or folder for documents with just a click.
+* **Delete Document:** Delete an existing document with just a click.
+* **Text Editing:** Edit any document's content and style with markdown formatting.
 * **Online Database:** An online database links accounts and their documents so they can be accessed from any device.
 * **Asynchronous Saving:** All edits save locally automatically, and can be then saved and retrieved from an online database from any device.
 
