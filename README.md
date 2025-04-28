@@ -1,54 +1,87 @@
-FocusNote
-A simplified text editing application for creating and group note documents with basic formatting ability and online database saving within a minimalized format.
+# FocusNote
 
-Developed as part of development project.
-University of North Georgia\
-CSCI 3300 Software Engineering, Section: D1\
-Spring 2025\
-Professor: Dr. Porter\
-Group 3
+A minimalistic text editing application for creating and managing grouped documents with basic formatting and online database synchronization.
 
+Developed for:
 
-Features
-Create Document: Create a new document or folder for documents with just a click
-Delete Document: Delete an existing document with just a click
-Text Editing: Edit any document's content
-Online Database: An online database links accounts and their documents so they can be accessed from any device.
-Asynchronous Saving: All edits save locally automatically, and can be then saved and retrieved from an online database from any device.
+- University of North Georgia
+- CSCI 3300 Software Engineering, Section D1
+- Spring 2025
+- Professor: Dr. Porter
+- Group 3
 
+---
 
-Installation
-Clone the Repo
-git clone https://github.com/ELall23/CSCI-3300-Focus-Note/tree/maincd CSCI-3300-Focus-Note
+## Features
 
+- ✍️ **Create Documents**: Quickly create new documents and folders
+- 🗑️ **Delete Documents**: Remove documents with one click
+- 📝 **Text Editing**: Edit any document with basic Markdown formatting
+- ☁️ **Online Database**: Sync documents across devices using Appwrite
+- 💾 **Asynchronous Saving**: Auto-save edits locally, manual online sync available
 
-Install  Dependencies
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/ELall23/CSCI-3300-Focus-Note.git
+cd CSCI-3300-Focus-Note
+```
+
+Install dependencies:
+
+```bash
 npm install
+```
 
+> **Note**:\
+> If you encounter errors, verify your Node.js and NPM versions:
 
-Possible Errors when Running these Commands
-If this commands does not work, you may not have Node.js or NPM installed, or at least not the right versions.
-
-Check for current version of Node.js and NPM:
+```bash
 node -v
 npm -v
+```
 
+---
 
-Usage
-Running the application
+## Usage
+
+Start the application:
+
+```bash
 npx expo start
+```
 
-Live App Preview
-When running npx expo start, the live preview of the application will be at http://localhost:8081.
+A live preview will be available at:\
+[http://localhost:8081](http://localhost:8081)
 
-Online Database
-The application utilizes an online database via Appwrite https://cloud.appwrite.io/console/organization-67f6bf030021517ad351 for the online synchronization.
+---
 
-Authors
-Paxton Meyer
-Samantha Morgan
-Eric Lalle
-Lee McKinstry
+## Online Database
 
-Project Status
-This project is in the final state for the duration of the project development cycle, but available for further use and development by it's contributors should they choose.
+FocusNote uses [Appwrite](https://cloud.appwrite.io/) to enable online synchronization of user documents.
+
+- Appwrite Console Link:\
+  [Organization 67f6bf030021517ad351](https://cloud.appwrite.io/console/organization-67f6bf030021517ad351)
+
+---
+
+## Authors
+
+- Paxton Meyer
+- Samantha Morgan
+- Eric Lalle
+- Lee McKinstry
+
+---
+
+## Project Status
+
+This project is considered feature-complete for the Spring 2025 development cycle.\
+Future improvements and contributions are welcome from team members and the open-source community.
+
+---
+
