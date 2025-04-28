@@ -1,50 +1,63 @@
-# Welcome to your Expo app 👋
+# FocusNote
+A simplified text editing application for creating and group note documents with basic formatting ability and online database saving within a minimalized format.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Developed as part of development project.
+> University of North Georgia\
+CSCI 3300 Software Engineering, Section: D1\
+Spring 2025\
+Professor: Dr. Porter\
+Group 3
 
-## Get started
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+* **Create Document:** Create a new document or folder for documents with just a click
+* **Delete Document:** Delete an existing document with just a click
+* **Text Editing:** Edit any document's content and style with markdown formatting
+* **Online Database:** An online database links accounts and their documents so they can be accessed from any device.
+* **Asynchronous Saving:** All edits save locally automatically, and can be then saved and retrieved from an online database from any device.
 
-2. Start the app
 
-   ```bash
-    npx expo start
-   ```
+## Installation
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+### Clone the Repo
 ```bash
-npm run reset-project
+git clone https://github.com/ELall23/CSCI-3300-Focus-Note/tree/maincd CSCI-3300-Focus-Note
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Install  Dependencies
+```bash
+npm install
+```
 
-## Learn more
+### Possible Errors when Running these Commands
+> If this commands does not work, you may not have Node.js or NPM installed, or at least not the right versions.
 
-To learn more about developing your project with Expo, look at the following resources:
+Check for current version of Node.js and NPM:
+```bash
+node -v
+npm -v
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Usage
 
-## Join the community
+### Running the application
+```bash
+npx expo start
+```
+### Live App Preview
+When running `npx expo start`, the live preview of the application will be at `http://localhost:8081`.
 
-Join our community of developers creating universal apps.
+### Online Database
+The application utilizes an online database via Appwrite <https://cloud.appwrite.io/console/organization-67f6bf030021517ad351> for the online synchronization.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Authors
+
+* Paxton Meyer
+* Samantha Morgan
+* Eric Lalle
+* Lee McKinstry
+
+## Project Status
+
+This project is in the final state for the duration of the project development cycle, but available for further use and development by it's contributors should they choose.
