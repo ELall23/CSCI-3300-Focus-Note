@@ -1,15 +1,14 @@
+import { Slot } from 'expo-router';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { AuthProvider } from '@/context/AuthContext';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { AuthProvider } from '@/context/AuthContext'; // ✅ Add this import
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Prevent splash screen auto-hide
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -29,12 +28,9 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider> {/* ✅ Wrap the entire tree */}
+    <AuthProvider> {/* ✅ Wrap everything inside AuthProvider */}
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
+        <Slot /> {/* ✅ Render Slot to allow (tabs)/textEditor or signIn etc */}
         <StatusBar style="auto" />
       </ThemeProvider>
     </AuthProvider>

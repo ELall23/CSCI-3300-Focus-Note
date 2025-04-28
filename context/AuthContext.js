@@ -1,9 +1,15 @@
-// AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { account } from '../lib/appwriteConfig';
 import { ID } from 'appwrite';
 
-const AuthContext = createContext();
+// Give context a default empty object with user/session null
+const AuthContext = createContext({
+  user: null,
+  session: null,
+  signup: async () => {},
+  signin: async () => {},
+  signout: async () => {},
+});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -70,7 +76,8 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, session, signup, signin, signout }}>
-      {loading ? null : children}
+      {/* ✅ Always render children, even if loading */}
+      {children}
     </AuthContext.Provider>
   );
 };

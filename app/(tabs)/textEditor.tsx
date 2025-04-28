@@ -1,6 +1,7 @@
-// Updated TextEditorScreen with a Save button for editing existing notes
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, TextInput, View, ScrollView, TouchableOpacity } from 'react-native'; 
+import { useRouter } from 'expo-router';
+import { useAuth } from '@/context/AuthContext';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -9,16 +10,26 @@ import { createNote, updateNote, listUserNotes } from '@/lib/noteService';
 
 export default function TextEditorScreen() {
   const colorScheme = useColorScheme();
+  const { user, signout } = useAuth();
+  const router = useRouter();
   const [text, setText] = useState('');
   const [folders, setFolders] = useState([]);
   const [currentDocument, setCurrentDocument] = useState(null); 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false); 
   const [newFolderId, setNewFolderId] = useState('');
-  const [newDocumentName, setNewDocumentName] = useState('');
+  const [newDocumentNames, setNewDocumentNames] = useState({});
 
   useEffect(() => {
-    fetchNotes();
-  }, []);
+    if (user === null) {
+      router.replace('/signIn');
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchNotes();
+    }
+  }, [user]);
 
   const fetchNotes = async () => {
     const res = await listUserNotes();
@@ -59,24 +70,29 @@ export default function TextEditorScreen() {
     }
   };
 
+  const handleDocumentNameChange = (folderId, name) => {
+    setNewDocumentNames(prev => ({ ...prev, [folderId]: name }));
+  };
+
   const handleNewDocument = async (folderId) => {
-    if (newDocumentName.trim()) {
+    const documentName = newDocumentNames[folderId];
+    if (documentName?.trim()) {
       const newDoc = await createNote({
-        title: newDocumentName,
+        title: documentName,
         content: '',
         folderId: parseInt(folderId),
       });
 
       const fullDoc = {
         $id: newDoc.$id,
-        FileTitle: newDocumentName,
+        FileTitle: documentName,
         FileContent: '',
         FolderID: parseInt(folderId),
       };
 
       setCurrentDocument(fullDoc);
       setText('');
-      setNewDocumentName('');
+      setNewDocumentNames(prev => ({ ...prev, [folderId]: '' }));
       fetchNotes();
     }
   };
@@ -107,9 +123,16 @@ export default function TextEditorScreen() {
   return (
     <ThemedView style={styles.container}>
       <View style={styles.sidebarContainer}>
-        <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title">Text Editor</ThemedText>
-        </ThemedView>
+        <View style={styles.topBar}>
+          <ThemedView style={styles.titleContainer}>
+            <ThemedText type="title">Text Editor</ThemedText>
+          </ThemedView>
+
+          {/* ✅ Add logout button */}
+          <TouchableOpacity onPress={signout} style={styles.logoutButton}>
+            <ThemedText style={styles.logoutText}>Log Out</ThemedText>
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity onPress={() => setSidebarCollapsed(!sidebarCollapsed)}>
           <ThemedText style={styles.toggleSidebar}>
@@ -136,8 +159,8 @@ export default function TextEditorScreen() {
                     ))}
                   </View>
                   <TextInput
-                    value={newDocumentName}
-                    onChangeText={setNewDocumentName}
+                    value={newDocumentNames[folder.id] || ''}
+                    onChangeText={(text) => handleDocumentNameChange(folder.id, text)}
                     placeholder="New document name"
                     style={styles.newItemInput}
                   />
@@ -184,7 +207,10 @@ export default function TextEditorScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, flexDirection: 'row', padding: 16 },
   sidebarContainer: { width: 250, marginRight: 16 },
-  titleContainer: { marginBottom: 16 },
+  topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  titleContainer: { marginBottom: 0 },
+  logoutButton: { backgroundColor: '#FF7070', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8 },
+  logoutText: { color: 'white', fontSize: 16 },
   toggleSidebar: { fontSize: 16, color: '#8cba9e', marginBottom: 10 },
   sidebar: { flex: 1, padding: 16, backgroundColor: Colors.light.background, borderRadius: 8 },
   folderContainer: { marginBottom: 16 },
