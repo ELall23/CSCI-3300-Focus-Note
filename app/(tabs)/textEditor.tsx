@@ -7,17 +7,20 @@ import { ThemedText } from '@/components/ThemedText';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { createNote, updateNote, listUserNotes } from '@/lib/noteService';
+import Markdown from 'react-native-markdown-display'; // ✅ For Markdown rendering
 
 export default function TextEditorScreen() {
   const colorScheme = useColorScheme();
   const { user, signout } = useAuth();
   const router = useRouter();
   const [text, setText] = useState('');
+  const textRef = useRef(''); // ✅ Fresh text tracking
   const [folders, setFolders] = useState([]);
   const [currentDocument, setCurrentDocument] = useState(null); 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false); 
   const [newFolderId, setNewFolderId] = useState('');
   const [newDocumentNames, setNewDocumentNames] = useState({});
+  const [isFocused, setIsFocused] = useState(false);
   const saveTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -41,12 +44,14 @@ export default function TextEditorScreen() {
       const doc = structured[0].documents[0];
       setCurrentDocument(doc);
       setText(doc.FileContent);
+      textRef.current = doc.FileContent; // ✅ Sync ref
     }
   };
 
   const handleTextChange = (newText) => {
     setText(newText);
-    // Auto-save after user stops typing for 2 seconds
+    textRef.current = newText; // ✅ Keep textRef always up to date
+
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
@@ -57,7 +62,7 @@ export default function TextEditorScreen() {
 
   const handleSave = async () => {
     if (currentDocument?.$id) {
-      await updateNote(currentDocument.$id, { FileContent: text });
+      await updateNote(currentDocument.$id, { FileContent: textRef.current }); // ✅ Save freshest text
     }
   };
 
@@ -67,6 +72,7 @@ export default function TextEditorScreen() {
       const doc = folder.documents[0];
       setCurrentDocument(doc);
       setText(doc.FileContent);
+      textRef.current = doc.FileContent; // ✅ Sync ref
     }
   };
 
@@ -75,6 +81,7 @@ export default function TextEditorScreen() {
     if (doc) {
       setCurrentDocument(doc);
       setText(doc.FileContent);
+      textRef.current = doc.FileContent; // ✅ Sync ref
     }
   };
 
@@ -100,6 +107,7 @@ export default function TextEditorScreen() {
 
       setCurrentDocument(fullDoc);
       setText('');
+      textRef.current = ''; // ✅ Reset ref
       setNewDocumentNames(prev => ({ ...prev, [folderId]: '' }));
       fetchNotes();
     }
@@ -191,19 +199,44 @@ export default function TextEditorScreen() {
         </View>
 
         <ThemedView style={styles.editorContainer}>
-          <TextInput
-            value={text}
-            onChangeText={handleTextChange}
-            multiline
-            numberOfLines={10}
-            placeholder="Start typing here..."
-            placeholderTextColor={Colors[colorScheme ?? 'light'].textSecondary}
-            style={[styles.textInput, {
-              backgroundColor: Colors[colorScheme ?? 'light'].background,
-              color: Colors[colorScheme ?? 'light'].text,
-              borderColor: '#ccc',
-            }]}
-          />
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => setIsFocused(true)}
+            style={{ flex: 1 }}
+          >
+            {isFocused ? (
+              <TextInput
+                value={text}
+                onChangeText={handleTextChange}
+                multiline
+                numberOfLines={10}
+                autoFocus
+                onBlur={() => setIsFocused(false)}
+                placeholder="Start typing here..."
+                placeholderTextColor={Colors[colorScheme ?? 'light'].textSecondary}
+                style={[styles.textInput, {
+                  backgroundColor: Colors[colorScheme ?? 'light'].background,
+                  color: Colors[colorScheme ?? 'light'].text,
+                  borderColor: '#ccc',
+                }]}
+              />
+            ) : (
+              <ScrollView style={{ flex: 1 }}>
+                <Markdown
+                  style={{
+                    body: { color: Colors[colorScheme ?? 'light'].text, fontSize: 16, padding: 10 },
+                    heading1: { color: Colors[colorScheme ?? 'light'].text },
+                    heading2: { color: Colors[colorScheme ?? 'light'].text },
+                    strong: { color: Colors[colorScheme ?? 'light'].text },
+                    em: { color: Colors[colorScheme ?? 'light'].text },
+                  }}
+                >
+                  {text || '*Click to start editing...*'}
+                </Markdown>
+              </ScrollView>
+            )}
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={handleSave} style={styles.saveButtonContainer}>
             <ThemedText style={styles.saveButton}>Save</ThemedText>
           </TouchableOpacity>
