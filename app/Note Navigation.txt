@@ -1,0 +1,28 @@
+import SQLite from 'react-native-sqlite-storage';
+
+const setupNoteDB = async () => {
+  const db = await SQLite.openDatabase({ name: 'notes.db' });
+  await db.executeSql(`
+    CREATE TABLE IF NOT EXISTS notes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      content TEXT,
+      category TEXT
+    );
+  `);
+  await db.executeSql(`
+    CREATE TABLE IF NOT EXISTS links (
+      source_id INTEGER,
+      target_id INTEGER,
+      FOREIGN KEY (source_id) REFERENCES notes (id),
+      FOREIGN KEY (target_id) REFERENCES notes (id)
+    );
+  `);
+  return db;
+};
+
+// Usage:
+const db = await setupNoteDB();
+db.executeSql(
+  "INSERT INTO notes (content, category) VALUES (?, ?)",
+  ["XSS Vulnerability", "Web"]
+);
