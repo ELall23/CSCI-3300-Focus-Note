@@ -1,0 +1,22 @@
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+
+const createReportWithScreenshots = async (notes, screenshotPaths) => {
+  let htmlContent = "<h1>Penetration Test Report</h1>";
+  notes.forEach((note, index) => {
+    htmlContent += `<p>${note}</p><img src="${screenshotPaths[index]}" width="500">`;
+  });
+
+  const options = {
+    html: htmlContent,
+    fileName: "report",
+    directory: RNFS.DocumentDirectoryPath,
+  };
+  const pdf = await RNHTMLtoPDF.convert(options);
+  return pdf.filePath;
+};
+
+// Usage:
+createReportWithScreenshots(
+  ["Found SQLi in login form"],
+  ["file:///screenshots/sqli.png"]
+);

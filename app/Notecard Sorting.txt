@@ -1,0 +1,11 @@
+const saveNoteCards = (cards, filename) => {
+  const filePath = `${RNFS.DocumentDirectoryPath}/${filename}`;
+  RNFS.writeFile(filePath, JSON.stringify(cards), 'utf8');
+};
+
+// Usage:
+const cards = [
+  { content: "SQLi Payload: ' OR 1=1--", tags: ["Exploitation", "Web"] },
+  { content: "Nmap Scan: 192.168.1.1", tags: ["Reconnaissance"] }
+];
+saveNoteCards(cards, "project_cards.json");
